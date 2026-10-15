@@ -29,12 +29,13 @@ header{background:var(--green);color:white;padding:28px 18px 30px;border-radius:
 <div class="section-head"><h2>Mentett bejegyzések</h2><span class="count" id="count">0 bejegyzés</span></div>
 <div class="saved-choices"><button class="saved-choice" id="showFood">🥗 Kaja</button><button class="saved-choice" id="showMove">🏃 Mozgás</button></div>
 <p class="hint">A bejegyzések ezen az eszközön, a böngészőben tárolódnak.</p>
+<div id="sortBar" class="toolbar hidden" style="margin:0 0 14px"><label for="sortOrder" style="align-self:center;font-weight:650">Dátum szerinti sorrend</label><select id="sortOrder" style="width:auto;flex:1;max-width:300px"><option value="newest">Legújabb elöl</option><option value="oldest">Legrégebbi elöl</option></select></div>
 <div id="savedList"></div>
 <div class="download-tools"><div class="section-head" style="margin-top:0"><h2>Letöltés</h2></div><div class="toolbar"><button class="secondary" id="exportFood">Kaja letöltése (CSV)</button><button class="secondary" id="exportMove">Mozgás letöltése (CSV)</button><button class="secondary" id="exportJson">Teljes napló (JSON)</button><button class="secondary" id="exportZip">Teljes napló + képek (ZIP)</button><button class="secondary" id="exportCsv">Teljes napló (CSV)</button><button class="danger" id="clearAll">Összes törlése</button></div><p class="hint">A ZIP-export a képeket külön, dátum/idő alapján elnevezett mappákba rendezi.</p></div></div>
 </main>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script>
-const DB_NAME='kaja-mozgas-db', STORE='entries'; let db, savedFilter=null;
+const DB_NAME='kaja-mozgas-db', STORE='entries'; let db, savedFilter=null, sortOrder='newest';
 const $=id=>document.getElementById(id);
 const stamp=()=>new Date().toISOString();
 const fmt=iso=>new Intl.DateTimeFormat('hu-HU',{dateStyle:'medium',timeStyle:'short'}).format(new Date(iso));
@@ -49,7 +50,7 @@ $('foodPhoto').addEventListener('change',()=>{$('photoName').textContent=$('food
 $('saveFood').onclick=async()=>{const file=$('foodPhoto').files[0];let photo=null;if(file){if(file.size>12*1024*1024){alert('A kép legfeljebb 12 MB lehet.');return}photo={blob:file,name:file.name,type:file.type||'image/jpeg'}}
 const now=stamp();await put({id:crypto.randomUUID(),kind:'food',type:$('foodType').value,text:$('foodText').value.trim(),photo,savedAt:now,createdAt:now});$('foodText').value='';$('foodPhoto').value='';$('photoName').textContent='';await render()};
 $('saveMove').onclick=async()=>{const now=stamp();await put({id:crypto.randomUUID(),kind:'move',type:$('moveType').value,hours:+$('durationHours').value,minutes:+$('durationMinutes').value,text:$('moveText').value.trim(),savedAt:now,createdAt:now});$('moveText').value='';$('durationHours').value='0';$('durationMinutes').value='0';await render()};
-async function render(){const items=await all();const list=$('savedList');list.innerHTML='';$('count').textContent=savedFilter?items.filter(i=>i.kind===savedFilter).length+' bejegyzés':'Válassz kategóriát';if(!savedFilter){list.innerHTML='<div class="empty">Válaszd ki a Kaját vagy a Mozgást a bejegyzések megnyitásához.</div>';return}const visible=items.filter(i=>i.kind===savedFilter);$('count').textContent=visible.length+' bejegyzés';if(!visible.length){list.innerHTML='<div class="empty">'+(savedFilter==='food'?'Még nincs mentett kaja bejegyzés.':'Még nincs mentett mozgás bejegyzés.')+'</div>';return}
+async function render(){const items=await all();const list=$('savedList');list.innerHTML='';$('sortBar').classList.toggle('hidden',!savedFilter);$('count').textContent=savedFilter?items.filter(i=>i.kind===savedFilter).length+' bejegyzés':'Válassz kategóriát';if(!savedFilter){list.innerHTML='<div class="empty">Válaszd ki a Kaját vagy a Mozgást a bejegyzések megnyitásához.</div>';return}const visible=items.filter(i=>i.kind===savedFilter).sort((a,b)=>sortOrder==='oldest'?a.savedAt.localeCompare(b.savedAt):b.savedAt.localeCompare(a.savedAt));$('count').textContent=visible.length+' bejegyzés';if(!visible.length){list.innerHTML='<div class="empty">'+(savedFilter==='food'?'Még nincs mentett kaja bejegyzés.':'Még nincs mentett mozgás bejegyzés.')+'</div>';return}
 for(const item of visible){const card=document.createElement('article');card.className='saved';card.dataset.id=item.id;const isFood=item.kind==='food';const title=isFood?'🥗 Kaja · '+item.type:'🏃 Mozgás · '+item.type;const duration=!isFood?'<p><b>Időtartam:</b> '+item.hours+' óra '+item.minutes+' perc</p>':'';card.innerHTML='<div class="saved-top"><div><h3>'+safe(title)+'</h3><div class="stamp">Mentve: '+fmt(item.savedAt)+'</div></div></div><div class="view"><p>'+safe(item.text||'Nincs megjegyzés.')+'</p>'+duration+'</div><div class="editform hidden"></div><div class="entry-actions"><button class="secondary edit">Szerkesztés</button><button class="danger delete">Törlés</button></div>';
 if(item.photo?.blob){const img=document.createElement('img');img.alt='Feltöltött ételfotó';img.src=URL.createObjectURL(item.photo.blob);card.querySelector('.view').appendChild(img)}
 card.querySelector('.delete').onclick=async()=>{if(confirm('Törlöd ezt a bejegyzést?')){await remove(item.id);render()}};
@@ -63,6 +64,7 @@ $('entryTab').onclick=()=>{$('entryPanel').classList.remove('hidden');$('savedPa
 $('savedTab').onclick=()=>{$('entryPanel').classList.add('hidden');$('savedPanel').classList.remove('hidden');$('entryTab').classList.remove('active');$('savedTab').classList.add('active');render()};
 $('showFood').onclick=()=>{savedFilter='food';$('showFood').classList.add('active');$('showMove').classList.remove('active');render()};
 $('showMove').onclick=()=>{savedFilter='move';$('showMove').classList.add('active');$('showFood').classList.remove('active');render()};
+$('sortOrder').onchange=()=>{sortOrder=$('sortOrder').value;render()};
 function jsonItems(items){return items.map(({photo,...rest})=>({...rest,photo:photo?{name:photo.name,type:photo.type}:null}))}
 $('exportJson').onclick=async()=>download(new Blob([JSON.stringify({exportedAt:stamp(),entries:jsonItems(await all())},null,2)],{type:'application/json'}),'kaja-mozgas-naplo.json');
 function csvQuote(s){return '"'+String(s??'').replace(/"/g,'""')+'"'}
