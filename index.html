@@ -106,10 +106,15 @@ async function cloudSyncEntries(){
  cloudBusy=true;$('cloudSync').disabled=true;$('cloudSync').textContent='Szinkronizálás…';cloudMessage('Szinkronizálás folyamatban…');
  try{
   if(!cloudUser){
-   const {data,error}=await cloud.auth.signInAnonymously();
-   if(error)throw error;
-   cloudUser=data.user||data.session?.user||null;
-   if(!cloudUser)throw new Error('Nem sikerült létrehozni a szinkronkapcsolatot.');
+   const {data:sessionData,error:sessionError}=await cloud.auth.getSession();
+   if(sessionError)throw sessionError;
+   cloudUser=sessionData.session?.user||null;
+   if(!cloudUser){
+    const {data,error}=await cloud.auth.signInAnonymously();
+    if(error)throw error;
+    cloudUser=data.user||data.session?.user||null;
+   }
+   if(!cloudUser)throw new Error('Nem sikerült létrehozni a szinkronkapcsolatot. Ellenőrizd a Supabase névtelen bejelentkezés beállítását.');
   }
   const local=await all();
   const {data:remote,error:readError}=await cloud.from('kaja_mozgas_entries').select('*').eq('user_id',cloudUser.id).order('entry_date',{ascending:false});
@@ -131,7 +136,7 @@ async function cloudSyncEntries(){
    await put(item);
   }
   await render();cloudMessage('Szinkronizálás kész. '+local.length+' helyi és '+(remote||[]).length+' felhőbeli bejegyzés ellenőrizve. A meglévő helyi adatok megmaradtak.');
- }catch(e){cloudMessage('Szinkronizálási hiba: '+(e.message||'Ellenőrizd a kapcsolatot és a Supabase beállításait.'))}
+ }catch(e){console.error('Kaja és Mozgás szinkronhiba:',e);const detail=[e?.message,e?.code,e?.status?('HTTP '+e.status):null].filter(Boolean).join(' · ');cloudMessage('Szinkronizálási hiba: '+(detail||'Ismeretlen hiba. Nyisd meg újra az appot és próbáld meg ismét.'))}
  finally{cloudBusy=false;$('cloudSync').disabled=false;$('cloudSync').textContent='☁️ Szinkronizálás'}
 }
 $('cloudSync').onclick=()=>cloudSyncEntries();
