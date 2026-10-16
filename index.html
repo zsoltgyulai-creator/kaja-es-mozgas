@@ -103,6 +103,7 @@ let cloudUser=null, cloudBusy=false;
 function cloudMessage(message){$('cloudStatus').textContent=message}
 async function cloudSyncEntries(){
  if(cloudBusy)return;
+ let cloudStage='kapcsolat ellenőrzése';
  cloudBusy=true;$('cloudSync').disabled=true;$('cloudSync').textContent='Szinkronizálás…';cloudMessage('Szinkronizálás folyamatban…');
  try{
   if(!cloudUser){
@@ -110,22 +111,25 @@ async function cloudSyncEntries(){
    if(sessionError)throw sessionError;
    cloudUser=sessionData.session?.user||null;
    if(!cloudUser){
-    const {data,error}=await cloud.auth.signInAnonymously();
+    const {data,error}=await cloud.auth.signInAnonymously({options:{data:{app:'kaja-mozgas'}}});
     if(error)throw error;
     cloudUser=data.user||data.session?.user||null;
    }
    if(!cloudUser)throw new Error('Nem sikerült létrehozni a szinkronkapcsolatot. Ellenőrizd a Supabase névtelen bejelentkezés beállítását.');
   }
+  cloudStage='felhőbejegyzések lekérése';
   const local=await all();
   const {data:remote,error:readError}=await cloud.from('kaja_mozgas_entries').select('*').eq('user_id',cloudUser.id).order('entry_date',{ascending:false});
   if(readError)throw readError;
   const remoteIds=new Set((remote||[]).map(x=>x.id));
   for(const item of local){
    if(remoteIds.has(item.id))continue;
+   cloudStage='bejegyzés feltöltése';
    let photoPath=null;
-   if(item.photo?.blob){const ext=(item.photo.name||'photo.jpg').split('.').pop().toLowerCase().replace(/[^a-z0-9]/g,'')||'jpg';photoPath=cloudUser.id+'/'+item.id+'.'+ext;const {error:uploadError}=await cloud.storage.from('kaja-mozgas-photos').upload(photoPath,item.photo.blob,{upsert:true,contentType:item.photo.type||'image/jpeg'});if(uploadError)throw uploadError}
+   if(item.photo?.blob){cloudStage='fénykép feltöltése';const ext=(item.photo.name||'photo.jpg').split('.').pop().toLowerCase().replace(/[^a-z0-9]/g,'')||'jpg';photoPath=cloudUser.id+'/'+item.id+'.'+ext;const {error:uploadError}=await cloud.storage.from('kaja-mozgas-photos').upload(photoPath,item.photo.blob,{upsert:true,contentType:item.photo.type||'image/jpeg'});if(uploadError)throw uploadError}
    const dt=new Date(item.savedAt||item.createdAt||stamp());const metadata={...item,photo:item.photo?{name:item.photo.name,type:item.photo.type,path:photoPath}:null};
    const payload={id:item.id,user_id:cloudUser.id,entry_type:item.kind==='move'?'movement':'food',entry_date:localDateKey(dt),entry_time:dt.toTimeString().slice(0,8),title:item.type||'',details:item.text||'',duration_minutes:item.kind==='move'?((Number(item.hours)||0)*60+(Number(item.minutes)||0)):null,photo_path:photoPath,metadata,updated_at:stamp()};
+   cloudStage='bejegyzés mentése a felhőbe';
    const {error:insertError}=await cloud.from('kaja_mozgas_entries').upsert(payload,{onConflict:'id'});if(insertError)throw insertError;
   }
   const localIds=new Set(local.map(x=>x.id));
@@ -136,7 +140,7 @@ async function cloudSyncEntries(){
    await put(item);
   }
   await render();cloudMessage('Szinkronizálás kész. '+local.length+' helyi és '+(remote||[]).length+' felhőbeli bejegyzés ellenőrizve. A meglévő helyi adatok megmaradtak.');
- }catch(e){console.error('Kaja és Mozgás szinkronhiba:',e);const detail=[e?.message,e?.code,e?.status?('HTTP '+e.status):null].filter(Boolean).join(' · ');cloudMessage('Szinkronizálási hiba: '+(detail||'Ismeretlen hiba. Nyisd meg újra az appot és próbáld meg ismét.'))}
+ }catch(e){console.error('Kaja és Mozgás szinkronhiba:',cloudStage,e);const detail=[e?.message,e?.code,e?.status?('HTTP '+e.status):null].filter(Boolean).join(' · ');cloudMessage('Hiba ('+cloudStage+'): '+(detail||'Ismeretlen hiba. Nyisd meg újra az appot és próbáld meg ismét.'))}
  finally{cloudBusy=false;$('cloudSync').disabled=false;$('cloudSync').textContent='☁️ Szinkronizálás'}
 }
 $('cloudSync').onclick=()=>cloudSyncEntries();
