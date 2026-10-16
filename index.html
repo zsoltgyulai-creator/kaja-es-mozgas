@@ -14,11 +14,7 @@ header{background:var(--green);color:white;padding:28px 18px 30px;border-radius:
 <main>
 <nav class="tabs" aria-label="Napló fülek"><button class="tab active" id="entryTab">Új bejegyzés</button><button class="tab" id="savedTab">Mentett bejegyzések</button></nav>
 <div id="entryPanel">\n
-<section class="entry" id="cloudEntry"><h2>☁️ Felhőszinkronizálás</h2>
-<p class="hint">Jelentkezz be e-mail-címmel, hogy a naplód másik eszközön is elérhető legyen. A bejegyzések helyben továbbra is megmaradnak.</p>
-<div class="fields"><div class="field"><label for="cloudEmail">E-mail</label><input id="cloudEmail" type="email" autocomplete="email" placeholder="nev@email.com"></div><div class="field"><label for="cloudPassword">Jelszó</label><input id="cloudPassword" type="password" autocomplete="current-password" placeholder="Legalább 6 karakter"></div></div>
-<div class="toolbar" style="margin-top:12px"><button class="save" style="width:auto;margin:0" id="cloudSignup">Regisztráció</button><button class="secondary" id="cloudLogin">Bejelentkezés</button><button class="secondary hidden" id="cloudSync">Szinkronizálás</button><button class="danger hidden" id="cloudLogout">Kijelentkezés</button></div>
-<p class="hint" id="cloudStatus" role="status">Nincs bejelentkezve. A bejegyzések egyelőre ezen az eszközön vannak.</p></section>
+
 
 <section class="entry movement" id="moveEntry"><h2>🏃 Mozgás</h2><div class="fields">
 <div class="field"><label for="moveType">Mozgás típusa</label><select id="moveType"><option>séta</option><option>futás</option><option>úszás</option><option>kondi</option><option>egyéb</option></select></div>
@@ -40,7 +36,13 @@ header{background:var(--green);color:white;padding:28px 18px 30px;border-radius:
 <div class="day-detail" id="dayDetail"></div>
 </section>
 <div id="savedList" class="hidden"></div>
-<div class="download-tools"><div class="section-head" style="margin-top:0"><h2>Letöltés</h2></div><div class="toolbar"><button class="secondary" id="exportFood">Kaja letöltése (CSV)</button><button class="secondary" id="exportMove">Mozgás letöltése (CSV)</button><button class="secondary" id="exportJson">Teljes napló (JSON)</button><button class="secondary" id="exportZip">Teljes napló + képek (ZIP)</button><button class="secondary" id="exportCsv">Teljes napló (CSV)</button><button class="danger" id="clearAll">Összes törlése</button></div><p class="hint">A ZIP-export a képeket külön, dátum/idő alapján elnevezett mappákba rendezi.</p></div></div>
+<div class="download-tools"><div class="section-head" style="margin-top:0"><h2>Letöltés</h2></div><div class="toolbar"><button class="secondary" id="exportFood">Kaja letöltése (CSV)</button><button class="secondary" id="exportMove">Mozgás letöltése (CSV)</button><button class="secondary" id="exportJson">Teljes napló (JSON)</button><button class="secondary" id="exportZip">Teljes napló + képek (ZIP)</button><button class="secondary" id="exportCsv">Teljes napló (CSV)</button><button class="danger" id="clearAll">Összes törlése</button></div><p class="hint">A ZIP-export a képeket külön, dátum/idő alapján elnevezett mappákba rendezi.</p></div>
+<section class="entry" id="cloudEntry"><h2>☁️ Felhőszinkronizálás</h2>
+<p class="hint">Jelentkezz be e-mail-címmel, hogy a naplód másik eszközön is elérhető legyen. A bejegyzések helyben továbbra is megmaradnak.</p>
+<div class="fields"><div class="field"><label for="cloudEmail">E-mail</label><input id="cloudEmail" type="email" autocomplete="email" placeholder="nev@email.com"></div><div class="field"><label for="cloudPassword">Jelszó</label><input id="cloudPassword" type="password" autocomplete="current-password" placeholder="Legalább 6 karakter"></div></div>
+<div class="toolbar" style="margin-top:12px"><button class="save" style="width:auto;margin:0" id="cloudSignup">Regisztráció</button><button class="secondary" id="cloudLogin">Bejelentkezés</button><button class="secondary hidden" id="cloudSync">Szinkronizálás</button><button class="danger hidden" id="cloudLogout">Kijelentkezés</button></div>
+<p class="hint" id="cloudStatus" role="status">Nincs bejelentkezve. A bejegyzések egyelőre ezen az eszközön vannak.</p></section>
+</div>
 </main>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>\n<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -64,7 +66,7 @@ $('saveMove').onclick=async()=>{const now=stamp();await put({id:crypto.randomUUI
 function localDateKey(date){const d=date instanceof Date?date:new Date(date);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function dateForItem(item){return localDateKey(item.savedAt||item.createdAt||stamp())}
 function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-async function render(){const items=await all();renderCalendar(items)}
+async function render(){const items=await all();$('count').textContent=items.length+' bejegyzés';renderCalendar(items)}
 function renderCalendar(items){const grid=$('calendarGrid');grid.innerHTML='';$('calendarMonth').textContent=new Intl.DateTimeFormat('hu-HU',{month:'long',year:'numeric'}).format(calendarMonth);const weekdays=['H','K','Sze','Cs','P','Szo','V'];for(const day of weekdays){const el=document.createElement('div');el.className='calendar-weekday';el.textContent=day;grid.appendChild(el)}
 const first=new Date(calendarMonth.getFullYear(),calendarMonth.getMonth(),1);const offset=(first.getDay()+6)%7;const startDate=new Date(first);startDate.setDate(first.getDate()-offset);const today=localDateKey(new Date());
 for(let i=0;i<42;i++){const date=new Date(startDate);date.setDate(startDate.getDate()+i);const key=localDateKey(date);const dayItems=items.filter(item=>dateForItem(item)===key);const food=dayItems.some(item=>item.kind==='food'),move=dayItems.some(item=>item.kind==='move');const btn=document.createElement('button');btn.className='calendar-day'+(date.getMonth()!==calendarMonth.getMonth()?' outside':'')+(key===selectedDay?' selected':'')+(key===today?' today':'');btn.innerHTML='<span>'+date.getDate()+'</span><span class="day-dots">'+(food?'<i class="day-dot"></i>':'')+(move?'<i class="day-dot move"></i>':'')+'</span>';btn.setAttribute('aria-label',key+(food?' kaja':'')+(move?' mozgás':''));btn.onclick=()=>{selectedDay=key;if(date.getMonth()!==calendarMonth.getMonth())calendarMonth=new Date(date.getFullYear(),date.getMonth(),1);renderCalendar(items)};grid.appendChild(btn)}
@@ -131,6 +133,9 @@ async function cloudSyncEntries(){
  }catch(e){cloudMessage('Szinkronizálási hiba: '+(e.message||'Ellenőrizd a kapcsolatot és a bejelentkezést.'))}
  finally{cloudBusy=false;$('cloudSync').disabled=false}
 }
-\ncloud.auth.onAuthStateChange(()=>{cloudRefreshSession().catch(e=>cloudMessage(e.message))});\ncloudRefreshSession().catch(e=>cloudMessage('Supabase-kapcsolati hiba: '+e.message));\nopenDB().then(render).catch(e=>{console.error(e);alert('Nem sikerült elindítani a helyi adatbázist. Nyisd meg HTTPS-en keresztül.')});
+
+cloud.auth.onAuthStateChange(()=>{cloudRefreshSession().catch(e=>cloudMessage(e.message))});
+cloudRefreshSession().catch(e=>cloudMessage('Supabase-kapcsolati hiba: '+e.message));
+openDB().then(render).catch(e=>{console.error(e);alert('Nem sikerült elindítani a helyi adatbázist. Nyisd meg HTTPS-en keresztül.')});
 </script>
 </body></html>
