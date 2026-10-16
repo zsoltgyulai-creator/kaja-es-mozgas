@@ -38,10 +38,9 @@ header{background:var(--green);color:white;padding:28px 18px 30px;border-radius:
 <div id="savedList" class="hidden"></div>
 <div class="download-tools"><div class="section-head" style="margin-top:0"><h2>Letöltés</h2></div><div class="toolbar"><button class="secondary" id="exportFood">Kaja letöltése (CSV)</button><button class="secondary" id="exportMove">Mozgás letöltése (CSV)</button><button class="secondary" id="exportJson">Teljes napló (JSON)</button><button class="secondary" id="exportZip">Teljes napló + képek (ZIP)</button><button class="secondary" id="exportCsv">Teljes napló (CSV)</button><button class="danger" id="clearAll">Összes törlése</button></div><p class="hint">A ZIP-export a képeket külön, dátum/idő alapján elnevezett mappákba rendezi.</p></div>
 <section class="entry" id="cloudEntry"><h2>☁️ Felhőszinkronizálás</h2>
-<p class="hint">Jelentkezz be e-mail-címmel, hogy a naplód másik eszközön is elérhető legyen. A bejegyzések helyben továbbra is megmaradnak.</p>
-<div class="fields"><div class="field"><label for="cloudEmail">E-mail</label><input id="cloudEmail" type="email" autocomplete="email" placeholder="nev@email.com"></div></div>
-<div class="toolbar" style="margin-top:12px"><button class="save" style="width:auto;margin:0" id="cloudSendLink">Validációs e-mail küldése</button><button class="secondary hidden" id="cloudSync">Szinkronizálás</button><button class="danger hidden" id="cloudLogout">Kijelentkezés</button></div>
-<p class="hint" id="cloudStatus" role="status">Add meg az e-mail-címedet, majd kérj belépési/validációs linket. Jelszó nem szükséges.</p></section>
+<p class="hint">A napló szinkronizálásához csak koppints a gombra. E-mail-cím és bejelentkezés nem szükséges. A helyi bejegyzések megmaradnak.</p>
+<div class="toolbar" style="margin-top:12px"><button class="save" style="width:auto;margin:0" id="cloudSync">☁️ Szinkronizálás</button></div>
+<p class="hint" id="cloudStatus" role="status">Készen áll a szinkronizálásra.</p></section>
 </div>
 </main>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -99,23 +98,21 @@ $('clearAll').onclick=async()=>{if(!confirm('Biztosan törlöd az összes bejegy
 
 const SUPABASE_URL='https://qbszxsxhzaakajeyjlqy.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY='sb_publishable_ay0lh2xETDh34qttnjx1_w_O3vSp4oe';
-const cloud = window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+const cloud = window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true}});
 let cloudUser=null, cloudBusy=false;
 function cloudMessage(message){$('cloudStatus').textContent=message}
-const CLOUD_EMAIL_STORAGE_KEY='kaja-mozgas-cloud-email';
-function restoreCloudEmail(){try{$('cloudEmail').value=localStorage.getItem(CLOUD_EMAIL_STORAGE_KEY)||''}catch(_){}}
-$('cloudEmail').addEventListener('change',()=>{try{localStorage.setItem(CLOUD_EMAIL_STORAGE_KEY,$('cloudEmail').value.trim().toLowerCase())}catch(_){}});
-function cloudControls(){const logged=!!cloudUser;$('cloudSync').classList.toggle('hidden',!logged);$('cloudLogout').classList.toggle('hidden',!logged);$('cloudSendLink').classList.toggle('hidden',logged);$('cloudEmail').disabled=logged}
-async function cloudRefreshSession(){const {data,error}=await cloud.auth.getSession();if(error)throw error;cloudUser=data.session?.user||null;cloudControls();if(cloudUser)cloudMessage('Bejelentkezve: '+cloudUser.email+'. A helyi napló szinkronizálható.')}
-async function cloudSendMagicLink(){const email=$('cloudEmail').value.trim().toLowerCase();if(!email){cloudMessage('Add meg az e-mail-címedet.');return}try{localStorage.setItem(CLOUD_EMAIL_STORAGE_KEY,email)}catch(_){}cloudMessage('Validációs e-mail küldése…');$('cloudSendLink').disabled=true;try{const {error}=await cloud.auth.signInWithOtp({email,options:{emailRedirectTo:window.location.origin}});if(error)throw error;cloudMessage('E-mail elküldve. Nyisd meg az üzenetet, és koppints a belépési/validációs linkre. Ezután visszatérve az appba be leszel jelentkezve.')}catch(e){cloudMessage('E-mail-küldési hiba: '+(e.message||'Próbáld újra később.'))}finally{$('cloudSendLink').disabled=false}}
-$('cloudSendLink').onclick=cloudSendMagicLink;
-$('cloudLogout').onclick=async()=>{const {error}=await cloud.auth.signOut();if(error){cloudMessage('Kijelentkezési hiba: '+error.message);return}cloudUser=null;cloudControls();cloudMessage('Kijelentkeztél. A helyi bejegyzések megmaradnak.')};
-$('cloudSync').onclick=()=>cloudSyncEntries();
 async function cloudSyncEntries(){
- if(!cloudUser||cloudBusy)return;cloudBusy=true;$('cloudSync').disabled=true;cloudMessage('Szinkronizálás folyamatban…');
+ if(cloudBusy)return;
+ cloudBusy=true;$('cloudSync').disabled=true;$('cloudSync').textContent='Szinkronizálás…';cloudMessage('Szinkronizálás folyamatban…');
  try{
+  if(!cloudUser){
+   const {data,error}=await cloud.auth.signInAnonymously();
+   if(error)throw error;
+   cloudUser=data.user||data.session?.user||null;
+   if(!cloudUser)throw new Error('Nem sikerült létrehozni a szinkronkapcsolatot.');
+  }
   const local=await all();
-  const {data:remote,error:readError}=await cloud.from('kaja_mozgas_entries').select('*').order('entry_date',{ascending:false});
+  const {data:remote,error:readError}=await cloud.from('kaja_mozgas_entries').select('*').eq('user_id',cloudUser.id).order('entry_date',{ascending:false});
   if(readError)throw readError;
   const remoteIds=new Set((remote||[]).map(x=>x.id));
   for(const item of local){
@@ -134,13 +131,10 @@ async function cloudSyncEntries(){
    await put(item);
   }
   await render();cloudMessage('Szinkronizálás kész. '+local.length+' helyi és '+(remote||[]).length+' felhőbeli bejegyzés ellenőrizve. A meglévő helyi adatok megmaradtak.');
- }catch(e){cloudMessage('Szinkronizálási hiba: '+(e.message||'Ellenőrizd a kapcsolatot és a bejelentkezést.'))}
- finally{cloudBusy=false;$('cloudSync').disabled=false}
+ }catch(e){cloudMessage('Szinkronizálási hiba: '+(e.message||'Ellenőrizd a kapcsolatot és a Supabase beállításait.'))}
+ finally{cloudBusy=false;$('cloudSync').disabled=false;$('cloudSync').textContent='☁️ Szinkronizálás'}
 }
-
-restoreCloudEmail();
-cloud.auth.onAuthStateChange(()=>{cloudRefreshSession().catch(e=>cloudMessage(e.message))});
-cloudRefreshSession().catch(e=>cloudMessage('Supabase-kapcsolati hiba: '+e.message));
+$('cloudSync').onclick=()=>cloudSyncEntries();
 openDB().then(render).catch(e=>{console.error(e);alert('Nem sikerült elindítani a helyi adatbázist. Nyisd meg HTTPS-en keresztül.')});
 </script>
 </body></html>
