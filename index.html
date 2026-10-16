@@ -102,9 +102,9 @@ const SUPABASE_PUBLISHABLE_KEY='sb_publishable_ay0lh2xETDh34qttnjx1_w_O3vSp4oe';
 const cloud = window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 let cloudUser=null, cloudBusy=false;
 function cloudMessage(message){$('cloudStatus').textContent=message}
-function cloudControls(){const logged=!!cloudUser;$('cloudSync').classList.toggle('hidden',!logged);$('cloudLogout').classList.toggle('hidden',!logged);$('cloudSendLink').classList.toggle('hidden',logged);$('cloudEmail').disabled=logged}
+const CLOUD_EMAIL_STORAGE_KEY='kaja-mozgas-cloud-email';\nfunction restoreCloudEmail(){try{$('cloudEmail').value=localStorage.getItem(CLOUD_EMAIL_STORAGE_KEY)||''}catch(_){}}\n$('cloudEmail').addEventListener('change',()=>{try{localStorage.setItem(CLOUD_EMAIL_STORAGE_KEY,$('cloudEmail').value.trim().toLowerCase())}catch(_){}});\nfunction cloudControls(){const logged=!!cloudUser;$('cloudSync').classList.toggle('hidden',!logged);$('cloudLogout').classList.toggle('hidden',!logged);$('cloudSendLink').classList.toggle('hidden',logged);$('cloudEmail').disabled=logged}
 async function cloudRefreshSession(){const {data,error}=await cloud.auth.getSession();if(error)throw error;cloudUser=data.session?.user||null;cloudControls();if(cloudUser)cloudMessage('Bejelentkezve: '+cloudUser.email+'. A helyi napló szinkronizálható.')}
-async function cloudSendMagicLink(){const email=$('cloudEmail').value.trim();if(!email){cloudMessage('Add meg az e-mail-címedet.');return}cloudMessage('Validációs e-mail küldése…');$('cloudSendLink').disabled=true;try{const {error}=await cloud.auth.signInWithOtp({email,options:{emailRedirectTo:window.location.origin}});if(error)throw error;cloudMessage('E-mail elküldve. Nyisd meg az üzenetet, és koppints a belépési/validációs linkre. Ezután visszatérve az appba be leszel jelentkezve.')}catch(e){cloudMessage('E-mail-küldési hiba: '+(e.message||'Próbáld újra később.'))}finally{$('cloudSendLink').disabled=false}}
+async function cloudSendMagicLink(){const email=$('cloudEmail').value.trim().toLowerCase();if(!email){cloudMessage('Add meg az e-mail-címedet.');return}try{localStorage.setItem(CLOUD_EMAIL_STORAGE_KEY,email)}catch(_){}cloudMessage('Validációs e-mail küldése…');$('cloudSendLink').disabled=true;try{const {error}=await cloud.auth.signInWithOtp({email,options:{emailRedirectTo:window.location.origin}});if(error)throw error;cloudMessage('E-mail elküldve. Nyisd meg az üzenetet, és koppints a belépési/validációs linkre. Ezután visszatérve az appba be leszel jelentkezve.')}catch(e){cloudMessage('E-mail-küldési hiba: '+(e.message||'Próbáld újra később.'))}finally{$('cloudSendLink').disabled=false}}
 $('cloudSendLink').onclick=cloudSendMagicLink;
 $('cloudLogout').onclick=async()=>{const {error}=await cloud.auth.signOut();if(error){cloudMessage('Kijelentkezési hiba: '+error.message);return}cloudUser=null;cloudControls();cloudMessage('Kijelentkeztél. A helyi bejegyzések megmaradnak.')};
 $('cloudSync').onclick=()=>cloudSyncEntries();
@@ -135,7 +135,7 @@ async function cloudSyncEntries(){
  finally{cloudBusy=false;$('cloudSync').disabled=false}
 }
 
-cloud.auth.onAuthStateChange(()=>{cloudRefreshSession().catch(e=>cloudMessage(e.message))});
+restoreCloudEmail();\ncloud.auth.onAuthStateChange(()=>{cloudRefreshSession().catch(e=>cloudMessage(e.message))});
 cloudRefreshSession().catch(e=>cloudMessage('Supabase-kapcsolati hiba: '+e.message));
 openDB().then(render).catch(e=>{console.error(e);alert('Nem sikerült elindítani a helyi adatbázist. Nyisd meg HTTPS-en keresztül.')});
 </script>
