@@ -13,7 +13,7 @@ header{background:var(--green);color:white;padding:28px 18px 30px;border-radius:
 <header><div class="inner"><h1>Kaja & Mozgás</h1><p>Egyszerű napi étkezés- és mozgásnapló</p></div></header>
 <main>
 <nav class="tabs" aria-label="Napló fülek"><button class="tab active" id="entryTab">Új bejegyzés</button><button class="tab" id="savedTab">Mentett bejegyzések</button></nav>
-<div id="entryPanel">\n
+<div id="entryPanel">
 
 
 <section class="entry movement" id="moveEntry"><h2>🏃 Mozgás</h2><div class="fields">
@@ -44,7 +44,8 @@ header{background:var(--green);color:white;padding:28px 18px 30px;border-radius:
 <p class="hint" id="cloudStatus" role="status">Nincs bejelentkezve. A bejegyzések egyelőre ezen az eszközön vannak.</p></section>
 </div>
 </main>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>\n<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const DB_NAME='kaja-mozgas-db', STORE='entries'; let db, calendarMonth=new Date(new Date().getFullYear(),new Date().getMonth(),1), selectedDay=localDateKey(new Date());
 const $=id=>document.getElementById(id);
