@@ -13,7 +13,13 @@ header{background:var(--green);color:white;padding:28px 18px 30px;border-radius:
 <header><div class="inner"><h1>Kaja & Mozgás</h1><p>Egyszerű napi étkezés- és mozgásnapló</p></div></header>
 <main>
 <nav class="tabs" aria-label="Napló fülek"><button class="tab active" id="entryTab">Új bejegyzés</button><button class="tab" id="savedTab">Mentett bejegyzések</button></nav>
-<div id="entryPanel">
+<div id="entryPanel">\n
+<section class="entry" id="cloudEntry"><h2>☁️ Felhőszinkronizálás</h2>
+<p class="hint">Jelentkezz be e-mail-címmel, hogy a naplód másik eszközön is elérhető legyen. A bejegyzések helyben továbbra is megmaradnak.</p>
+<div class="fields"><div class="field"><label for="cloudEmail">E-mail</label><input id="cloudEmail" type="email" autocomplete="email" placeholder="nev@email.com"></div><div class="field"><label for="cloudPassword">Jelszó</label><input id="cloudPassword" type="password" autocomplete="current-password" placeholder="Legalább 6 karakter"></div></div>
+<div class="toolbar" style="margin-top:12px"><button class="save" style="width:auto;margin:0" id="cloudSignup">Regisztráció</button><button class="secondary" id="cloudLogin">Bejelentkezés</button><button class="secondary hidden" id="cloudSync">Szinkronizálás</button><button class="danger hidden" id="cloudLogout">Kijelentkezés</button></div>
+<p class="hint" id="cloudStatus" role="status">Nincs bejelentkezve. A bejegyzések egyelőre ezen az eszközön vannak.</p></section>
+
 <section class="entry movement" id="moveEntry"><h2>🏃 Mozgás</h2><div class="fields">
 <div class="field"><label for="moveType">Mozgás típusa</label><select id="moveType"><option>séta</option><option>futás</option><option>úszás</option><option>kondi</option><option>egyéb</option></select></div>
 <div class="field"><label for="durationHours">Időtartam</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:7px"><select id="durationHours" aria-label="Óra"><option value="0">0 óra</option><option value="1">1 óra</option><option value="2">2 óra</option><option value="3">3 óra</option><option value="4">4 óra</option><option value="5">5 óra</option><option value="6">6 óra</option></select><select id="durationMinutes" aria-label="Perc"><option value="0">0 perc</option><option value="5">5 perc</option><option value="10">10 perc</option><option value="15">15 perc</option><option value="20">20 perc</option><option value="25">25 perc</option><option value="30">30 perc</option><option value="35">35 perc</option><option value="40">40 perc</option><option value="45">45 perc</option><option value="50">50 perc</option><option value="55">55 perc</option></select></div></div>
@@ -36,7 +42,7 @@ header{background:var(--green);color:white;padding:28px 18px 30px;border-radius:
 <div id="savedList" class="hidden"></div>
 <div class="download-tools"><div class="section-head" style="margin-top:0"><h2>Letöltés</h2></div><div class="toolbar"><button class="secondary" id="exportFood">Kaja letöltése (CSV)</button><button class="secondary" id="exportMove">Mozgás letöltése (CSV)</button><button class="secondary" id="exportJson">Teljes napló (JSON)</button><button class="secondary" id="exportZip">Teljes napló + képek (ZIP)</button><button class="secondary" id="exportCsv">Teljes napló (CSV)</button><button class="danger" id="clearAll">Összes törlése</button></div><p class="hint">A ZIP-export a képeket külön, dátum/idő alapján elnevezett mappákba rendezi.</p></div></div>
 </main>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>\n<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const DB_NAME='kaja-mozgas-db', STORE='entries'; let db, calendarMonth=new Date(new Date().getFullYear(),new Date().getMonth(),1), selectedDay=localDateKey(new Date());
 const $=id=>document.getElementById(id);
@@ -87,6 +93,44 @@ $('exportFood').onclick=()=>exportKind('food');$('exportMove').onclick=()=>expor
 $('exportCsv').onclick=async()=>{const items=await all(),q=s=>'"'+String(s??'').replace(/"/g,'""')+'"',rows=[['Típus','Kategória','Szöveg','Óra','Perc','Mentés időpontja','Kép fájl'].join(';'),...items.map(i=>[i.kind==='food'?'kaja':'mozgás',i.type,i.text||'',i.hours??'',i.minutes??'',fmt(i.savedAt),i.photo?fileStamp(i.savedAt)+'_'+(i.photo.name||'kep'):''].map(q).join(';'))];download(new Blob(['\ufeff'+rows.join('\r\n')],{type:'text/csv;charset=utf-8'}),'kaja-mozgas-naplo.csv')};
 $('exportZip').onclick=async()=>{const items=await all();if(!window.JSZip){alert('A ZIP-készítő könyvtár nem érhető el. Ellenőrizd az internetkapcsolatot.');return}const zip=new JSZip();zip.file('naplo.json',JSON.stringify({exportedAt:stamp(),entries:jsonItems(items)},null,2));zip.file('naplo.csv',items.map(i=>[i.kind,i.type,(i.text||'').replace(/;/g,','),i.hours??'',i.minutes??'',i.savedAt].join(';')).join('\n'));for(const i of items){if(i.photo?.blob){const folder='kepek/'+fileStamp(i.savedAt)+'/';zip.folder(folder);zip.file(folder+(i.photo.name||'kep.jpg'),i.photo.blob)}}const blob=await zip.generateAsync({type:'blob'});download(blob,'kaja-mozgas-teljes-naplo.zip')};
 $('clearAll').onclick=async()=>{if(!confirm('Biztosan törlöd az összes bejegyzést és képet? Ezt nem lehet visszavonni.'))return;const items=await all();const tx=db.transaction(STORE,'readwrite');items.forEach(i=>tx.objectStore(STORE).delete(i.id));tx.oncomplete=render};
-openDB().then(render).catch(e=>{console.error(e);alert('Nem sikerült elindítani a helyi adatbázist. Nyisd meg HTTPS-en keresztül.')});
+
+const SUPABASE_URL='https://qbszxsxhzaakajeyjlqy.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY='sb_publishable_ay0lh2xETDh34qttnjx1_w_O3vSp4oe';
+const cloud = window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+let cloudUser=null, cloudBusy=false;
+function cloudMessage(message){$('cloudStatus').textContent=message}
+function cloudControls(){const logged=!!cloudUser;$('cloudSync').classList.toggle('hidden',!logged);$('cloudLogout').classList.toggle('hidden',!logged);$('cloudLogin').classList.toggle('hidden',logged);$('cloudSignup').classList.toggle('hidden',logged);$('cloudEmail').disabled=logged;$('cloudPassword').disabled=logged}
+async function cloudRefreshSession(){const {data,error}=await cloud.auth.getSession();if(error)throw error;cloudUser=data.session?.user||null;cloudControls();if(cloudUser)cloudMessage('Bejelentkezve: '+cloudUser.email+'. A helyi napló szinkronizálható.')}
+async function cloudAuth(mode){const email=$('cloudEmail').value.trim(),password=$('cloudPassword').value;if(!email||!password){cloudMessage('Add meg az e-mail-címedet és a jelszavadat.');return}if(password.length<6){cloudMessage('A jelszó legalább 6 karakter legyen.');return}cloudMessage('Feldolgozás…');try{const result=mode==='signup'?await cloud.auth.signUp({email,password}):await cloud.auth.signInWithPassword({email,password});if(result.error)throw result.error;cloudUser=result.data.user||result.data.session?.user||null;cloudControls();if(mode==='signup'&&!result.data.session){cloudMessage('Regisztráció elküldve. Nézd meg az e-mailjeidet, erősítsd meg a címedet, majd jelentkezz be.');return}cloudMessage('Sikeres bejelentkezés. Szinkronizálás indul…');await cloudSyncEntries()}catch(e){cloudMessage('Hiba: '+(e.message||'A művelet nem sikerült.'))}}
+$('cloudSignup').onclick=()=>cloudAuth('signup');$('cloudLogin').onclick=()=>cloudAuth('login');
+$('cloudLogout').onclick=async()=>{const {error}=await cloud.auth.signOut();if(error){cloudMessage('Kijelentkezési hiba: '+error.message);return}cloudUser=null;cloudControls();cloudMessage('Kijelentkeztél. A helyi bejegyzések megmaradnak.')};
+$('cloudSync').onclick=()=>cloudSyncEntries();
+async function cloudSyncEntries(){
+ if(!cloudUser||cloudBusy)return;cloudBusy=true;$('cloudSync').disabled=true;cloudMessage('Szinkronizálás folyamatban…');
+ try{
+  const local=await all();
+  const {data:remote,error:readError}=await cloud.from('kaja_mozgas_entries').select('*').order('entry_date',{ascending:false});
+  if(readError)throw readError;
+  const remoteIds=new Set((remote||[]).map(x=>x.id));
+  for(const item of local){
+   if(remoteIds.has(item.id))continue;
+   let photoPath=null;
+   if(item.photo?.blob){const ext=(item.photo.name||'photo.jpg').split('.').pop().toLowerCase().replace(/[^a-z0-9]/g,'')||'jpg';photoPath=cloudUser.id+'/'+item.id+'.'+ext;const {error:uploadError}=await cloud.storage.from('kaja-mozgas-photos').upload(photoPath,item.photo.blob,{upsert:true,contentType:item.photo.type||'image/jpeg'});if(uploadError)throw uploadError}
+   const dt=new Date(item.savedAt||item.createdAt||stamp());const metadata={...item,photo:item.photo?{name:item.photo.name,type:item.photo.type,path:photoPath}:null};
+   const payload={id:item.id,user_id:cloudUser.id,entry_type:item.kind==='move'?'movement':'food',entry_date:localDateKey(dt),entry_time:dt.toTimeString().slice(0,8),title:item.type||'',details:item.text||'',duration_minutes:item.kind==='move'?((Number(item.hours)||0)*60+(Number(item.minutes)||0)):null,photo_path:photoPath,metadata,updated_at:stamp()};
+   const {error:insertError}=await cloud.from('kaja_mozgas_entries').insert(payload);if(insertError&&insertError.code!=='23505')throw insertError;
+  }
+  const localIds=new Set(local.map(x=>x.id));
+  for(const row of remote||[]){
+   if(localIds.has(row.id))continue;
+   const m=row.metadata||{};const item={...m,id:row.id,kind:row.entry_type==='movement'?'move':'food',type:m.type||row.title||'',text:m.text||row.details||'',savedAt:m.savedAt||row.created_at||stamp(),createdAt:m.createdAt||row.created_at||stamp()};
+   if(row.photo_path){const {data:photoData,error:photoError}=await cloud.storage.from('kaja-mozgas-photos').createSignedUrl(row.photo_path,300);if(!photoError&&photoData?.signedUrl){try{const resp=await fetch(photoData.signedUrl);if(resp.ok){const blob=await resp.blob();item.photo={blob,name:m.photo?.name||'foto.jpg',type:m.photo?.type||blob.type||'image/jpeg'}}}catch(_){}}}
+   await put(item);
+  }
+  await render();cloudMessage('Szinkronizálás kész. '+local.length+' helyi és '+(remote||[]).length+' felhőbeli bejegyzés ellenőrizve. A meglévő helyi adatok megmaradtak.');
+ }catch(e){cloudMessage('Szinkronizálási hiba: '+(e.message||'Ellenőrizd a kapcsolatot és a bejelentkezést.'))}
+ finally{cloudBusy=false;$('cloudSync').disabled=false}
+}
+\ncloud.auth.onAuthStateChange(()=>{cloudRefreshSession().catch(e=>cloudMessage(e.message))});\ncloudRefreshSession().catch(e=>cloudMessage('Supabase-kapcsolati hiba: '+e.message));\nopenDB().then(render).catch(e=>{console.error(e);alert('Nem sikerült elindítani a helyi adatbázist. Nyisd meg HTTPS-en keresztül.')});
 </script>
 </body></html>
