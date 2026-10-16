@@ -118,7 +118,7 @@ async function cloudSyncEntries(){
    if(item.photo?.blob){const ext=(item.photo.name||'photo.jpg').split('.').pop().toLowerCase().replace(/[^a-z0-9]/g,'')||'jpg';photoPath=cloudUser.id+'/'+item.id+'.'+ext;const {error:uploadError}=await cloud.storage.from('kaja-mozgas-photos').upload(photoPath,item.photo.blob,{upsert:true,contentType:item.photo.type||'image/jpeg'});if(uploadError)throw uploadError}
    const dt=new Date(item.savedAt||item.createdAt||stamp());const metadata={...item,photo:item.photo?{name:item.photo.name,type:item.photo.type,path:photoPath}:null};
    const payload={id:item.id,user_id:cloudUser.id,entry_type:item.kind==='move'?'movement':'food',entry_date:localDateKey(dt),entry_time:dt.toTimeString().slice(0,8),title:item.type||'',details:item.text||'',duration_minutes:item.kind==='move'?((Number(item.hours)||0)*60+(Number(item.minutes)||0)):null,photo_path:photoPath,metadata,updated_at:stamp()};
-   const {error:insertError}=await cloud.from('kaja_mozgas_entries').insert(payload);if(insertError&&insertError.code!=='23505')throw insertError;
+   const {error:insertError}=await cloud.from('kaja_mozgas_entries').upsert(payload,{onConflict:'id'});if(insertError)throw insertError;
   }
   const localIds=new Set(local.map(x=>x.id));
   for(const row of remote||[]){
