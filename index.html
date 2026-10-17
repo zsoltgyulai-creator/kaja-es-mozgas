@@ -60,9 +60,34 @@ function remove(id){return new Promise((resolve,reject)=>{const r=db.transaction
 function fileStamp(iso){return iso.replace(/[-:]/g,'').replace('T','_').replace(/\.\d+Z$/,'Z')}
 function download(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1500)}
 $('foodPhoto').addEventListener('change',()=>{$('photoName').textContent=$('foodPhoto').files[0]?.name||''});
-$('saveFood').onclick=async()=>{const file=$('foodPhoto').files[0];let photo=null;if(file){if(file.size>12*1024*1024){alert('A kép legfeljebb 12 MB lehet.');return}photo={blob:file,name:file.name,type:file.type||'image/jpeg'}}
-const now=stamp();await put({id:crypto.randomUUID(),kind:'food',type:$('foodType').value,text:$('foodText').value.trim(),photo,savedAt:now,createdAt:now});$('foodText').value='';$('foodPhoto').value='';$('photoName').textContent='';await render()};
-$('saveMove').onclick=async()=>{const now=stamp();await put({id:crypto.randomUUID(),kind:'move',type:$('moveType').value,hours:+$('durationHours').value,minutes:+$('durationMinutes').value,text:$('moveText').value.trim(),savedAt:now,createdAt:now});$('moveText').value='';$('durationHours').value='0';$('durationMinutes').value='0';await render()};
+async function saveEntryWithFeedback(button, savingText, successText, saveFn){
+ if(button.dataset.saving==='true')return;
+ const originalText=button.textContent;
+ button.dataset.saving='true';button.disabled=true;button.textContent=savingText;
+ try{
+  if(!db)throw new Error('A helyi adatbázis még nem áll készen. Várj egy pillanatot, majd próbáld újra.');
+  await saveFn();
+  button.textContent=successText;
+  await render();
+ }catch(error){
+  console.error('Új bejegyzés mentési hiba:',error);
+  alert('Nem sikerült menteni a bejegyzést. A beírt adatokat nem töröltük. '+(error?.message||'Próbáld újra.'));
+ }finally{
+  button.disabled=false;button.textContent=originalText;delete button.dataset.saving;
+ }
+}
+$('saveFood').onclick=()=>saveEntryWithFeedback($('saveFood'),'Mentés…','Mentve!',async()=>{
+ const file=$('foodPhoto').files[0];let photo=null;
+ if(file){if(file.size>12*1024*1024)throw new Error('A kép legfeljebb 12 MB lehet.');photo={blob:file,name:file.name,type:file.type||'image/jpeg'}}
+ const now=stamp();
+ await put({id:crypto.randomUUID(),kind:'food',type:$('foodType').value,text:$('foodText').value.trim(),photo,savedAt:now,createdAt:now});
+ $('foodText').value='';$('foodPhoto').value='';$('photoName').textContent='';
+});
+$('saveMove').onclick=()=>saveEntryWithFeedback($('saveMove'),'Mentés…','Mentve!',async()=>{
+ const now=stamp();
+ await put({id:crypto.randomUUID(),kind:'move',type:$('moveType').value,hours:+$('durationHours').value,minutes:+$('durationMinutes').value,text:$('moveText').value.trim(),savedAt:now,createdAt:now});
+ $('moveText').value='';$('durationHours').value='0';$('durationMinutes').value='0';
+});
 function localDateKey(date){const d=date instanceof Date?date:new Date(date);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function dateForItem(item){return localDateKey(item.savedAt||item.createdAt||stamp())}
 function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
