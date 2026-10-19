@@ -20,7 +20,7 @@ header{background:var(--green);color:white;padding:28px 18px 30px;border-radius:
 <div class="field"><label for="foodType">Étkezés</label><select id="foodType"><option>reggeli</option><option>ebéd</option><option>vacsora</option><option>nasi</option></select></div>
 <div class="field"><label for="foodText">Mit ettél/ittál?</label><textarea id="foodText" placeholder="Szabad szöveg…"></textarea></div>
 <div class="field"><label for="drinkType">Mit ittál a kajához?</label><select id="drinkType"><option value="">Válassz italt</option><option>víz</option><option>CM szörp</option><option>szörp</option><option>CM üdítő</option><option>üdítő</option><option>egyéb</option></select></div>
-<div class="field" style="grid-column:1/-1"><label for="foodPhoto">Képek feltöltése (több kép is választható)</label><input id="foodPhoto" type="file" accept="image/*" capture="environment" multiple><div id="photoName" class="hint"></div></div>
+<div class="field" style="grid-column:1/-1"><label for="foodPhoto">Fotó hozzáadása (ismételd meg minden képhez)</label><input id="foodPhoto" type="file" accept="image/*" capture="environment"><div id="photoName" class="hint">Még nincs kiválasztott kép.</div><div id="foodPhotoPreview" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"></div></div>
 <div class="field" style="grid-column:1/-1"><label style="display:flex;align-items:center;gap:10px;color:var(--ink);font-size:15px"><input id="vinegarTaken" type="checkbox" style="width:20px;height:20px;flex:0 0 auto"> Ittam ecetet?</label></div>
 </div><button class="save" id="saveFood">Kaja mentése</button></section>
 
@@ -61,7 +61,9 @@ function put(item){return new Promise((resolve,reject)=>{const tx=db.transaction
 function remove(id){return new Promise((resolve,reject)=>{const r=db.transaction(STORE,'readwrite').objectStore(STORE).delete(id);r.onsuccess=resolve;r.onerror=()=>reject(r.error)})}
 function fileStamp(iso){return iso.replace(/[-:]/g,'').replace('T','_').replace(/\.\d+Z$/,'Z')}
 function download(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1500)}
-$('foodPhoto').addEventListener('change',()=>{$('photoName').textContent=Array.from($('foodPhoto').files||[]).map(f=>f.name).join(', ')});
+let selectedFoodPhotos=[];
+function renderNewFoodPhotoPreviews(){const wrap=$('foodPhotoPreview');wrap.innerHTML='';$('photoName').textContent=selectedFoodPhotos.length?selectedFoodPhotos.length+' kép hozzáadva — újabb fotót is készíthetsz.':'Még nincs kiválasztott kép.';selectedFoodPhotos.forEach((photo,index)=>{const card=document.createElement('div');card.style.cssText='width:calc(33.333% - 6px);min-width:85px;max-width:150px';const img=document.createElement('img');img.src=URL.createObjectURL(photo.blob);img.alt='Kiválasztott ételfotó '+(index+1);img.style.cssText='display:block;width:100%;height:95px;object-fit:cover;border-radius:8px';const removeBtn=document.createElement('button');removeBtn.type='button';removeBtn.className='danger';removeBtn.style.cssText='width:100%;font-size:12px;padding:7px 4px;margin-top:4px';removeBtn.textContent='Eltávolítás';removeBtn.onclick=()=>{selectedFoodPhotos.splice(index,1);renderNewFoodPhotoPreviews()};card.append(img,removeBtn);wrap.appendChild(card)})}
+$('foodPhoto').addEventListener('change',()=>{const files=Array.from($('foodPhoto').files||[]);for(const file of files){if(file.size>12*1024*1024){alert('Egy kép legfeljebb 12 MB lehet. ('+file.name+')');continue}selectedFoodPhotos.push({blob:file,name:file.name,type:file.type||'image/jpeg'})}$('foodPhoto').value='';renderNewFoodPhotoPreviews()});
 function getPhotos(item){if(Array.isArray(item?.photos))return item.photos.filter(p=>p&&(p.blob||p.path));return item?.photo?.blob?[item.photo]:[]}
 async function saveEntryWithFeedback(button, savingText, successText, saveFn){
  if(button.dataset.saving==='true')return;
@@ -80,11 +82,10 @@ async function saveEntryWithFeedback(button, savingText, successText, saveFn){
  }
 }
 $('saveFood').onclick=()=>saveEntryWithFeedback($('saveFood'),'Mentés…','Mentve!',async()=>{
- const files=Array.from($('foodPhoto').files||[]);const photos=[];
- for(const file of files){if(file.size>12*1024*1024)throw new Error('Egy kép legfeljebb 12 MB lehet. ('+file.name+')');photos.push({blob:file,name:file.name,type:file.type||'image/jpeg'})}
+ const photos=selectedFoodPhotos.slice();
  const now=stamp();
  await put({id:crypto.randomUUID(),kind:'food',type:$('foodType').value,text:$('foodText').value.trim(),drinkType:$('drinkType').value,photos,vinegarTaken:$('vinegarTaken').checked,savedAt:now,createdAt:now});
- $('foodText').value='';$('drinkType').value='';$('foodPhoto').value='';$('photoName').textContent='';$('vinegarTaken').checked=false;
+ $('foodText').value='';$('drinkType').value='';$('foodPhoto').value='';selectedFoodPhotos=[];renderNewFoodPhotoPreviews();$('vinegarTaken').checked=false;
 });
 $('saveMove').onclick=()=>saveEntryWithFeedback($('saveMove'),'Mentés…','Mentve!',async()=>{
  const now=stamp();
