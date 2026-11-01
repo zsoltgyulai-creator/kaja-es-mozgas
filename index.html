@@ -38,10 +38,10 @@ header{background:var(--green);color:white;padding:28px 18px 30px;border-radius:
 <div class="day-detail" id="dayDetail"></div>
 </section>
 <div id="savedList" class="hidden"></div>
-<section class="entry" id="cloudEntry"><h2>☁️ Felhőszinkronizálás</h2>
+<details class="download-tools cloud-tools"><summary>☁️ Felhőszinkronizálás</summary>
 <p class="hint">A napló szinkronizálásához csak koppints a gombra. E-mail-cím és bejelentkezés nem szükséges. A helyi bejegyzések megmaradnak.</p>
 <div class="toolbar" style="margin-top:12px"><button class="save" style="width:auto;margin:0" id="cloudSync">☁️ Szinkronizálás</button></div>
-<p class="hint" id="cloudStatus" role="status">Készen áll a szinkronizálásra.</p></section>
+<p class="hint" id="cloudStatus" role="status">Készen áll a szinkronizálásra.</p></details>
 <details class="download-tools"><summary>Adatok exportálása</summary><div class="toolbar"><button class="secondary" id="exportJson">Teljes napló (JSON)</button><button class="secondary" id="exportZip">Teljes napló + képek (ZIP)</button><button class="secondary" id="exportCsv">Teljes napló (CSV)</button><button class="danger" id="clearAll">Összes bejegyzés törlése</button></div><p class="hint">A ZIP-export a képeket külön, dátum/idő alapján elnevezett mappákba rendezi.</p></details>
 </div>
 </main>
