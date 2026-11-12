@@ -39,8 +39,9 @@
 <section id="calendar" class="view"><div class="card"><h2>Életnaptár</h2><p class="muted">A napjaid bejegyzései egy helyen.</p><div class="calendar-head"><button class="btn" id="prevAll">‹</button><strong id="allMonthLabel"></strong><button class="btn" id="nextAll">›</button></div><div class="calendar" id="allCalendar"></div><div id="allDayDetails"></div></div></section>
 </main>
 <script>
-const DB='naplom-v1',STORE='items';let db,healthKind='food',editing=null,filter='all',monthCursor=new Date(),allCursor=new Date(),selectedDate=isoToday();
+const DB='naplom-v1',STORE='items';
 const $=id=>document.getElementById(id),now=()=>new Date().toISOString(),isoToday=()=>{let d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')},uuid=()=>crypto.randomUUID();
+let db,healthKind='food',editing=null,filter='all',monthCursor=new Date(),allCursor=new Date(),selectedDate=isoToday();
 function localDateTime(){let d=new Date();return {date:isoToday(),time:String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}}
 function openDB(){return new Promise((ok,no)=>{let r=indexedDB.open(DB,1);r.onupgradeneeded=()=>r.result.createObjectStore(STORE,{keyPath:'id'});r.onsuccess=()=>{db=r.result;ok()};r.onerror=()=>no(r.error)})}
 function all(){return new Promise((ok,no)=>{let r=db.transaction(STORE).objectStore(STORE).getAll();r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)})}
