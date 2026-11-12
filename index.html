@@ -1,21 +1,56 @@
 <!doctype html>
-<html lang="hu"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#101815"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Naplóm"><link rel="manifest" href="/manifest.json"><title>Naplóm</title>
+<html lang="hu"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#e8d8c3"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Naplóm"><link rel="manifest" href="/manifest.json"><title>Naplóm</title>
 <style>
 :root{color-scheme:dark;--bg:#101815;--panel:#19231e;--panel2:#202d26;--line:#304238;--text:#edf4ee;--muted:#9aa99f;--green:#9bd6ad;--green2:#294d38;--blue:#a9d8e8;--gold:#e7d39a;--red:#e59a91}
 .eyebrow{font-size:10px;letter-spacing:2px;font-weight:800;color:var(--green);display:block;margin-bottom:5px}.health-heading{display:flex;align-items:center;justify-content:space-between}.health-heading h2{font-size:24px;margin:0}.health-hero-icon{width:54px;height:54px;border-radius:18px;background:linear-gradient(145deg,#294d38,#1c3428);display:grid;place-items:center;font-size:27px}.health-main-tabs{margin:18px 0 0}.health-main-tabs button{min-height:48px;font-size:13px}.health-form-card{border-radius:24px}.health-form-card h2{font-size:22px;margin-bottom:14px}.health-form-card .seg button{min-height:46px}.health-form-card .field{margin:15px 0}.health-form-card input,.health-form-card textarea,.health-form-card select{border-radius:14px;padding:13px;background:#111d16}.health-form-card .primary{min-height:50px;letter-spacing:.2px}.health-main-tabs button.active{background:linear-gradient(135deg,#315d40,#244532)}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#1c2b23 0,#101815 48%);color:var(--text);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}button,input,textarea,select{font:inherit}header{padding:25px 18px 18px;max-width:980px;margin:auto}header h1{font-size:30px;letter-spacing:-1px;margin:0}header p{color:var(--muted);margin:3px 0 0;font-size:13px}.shell{max-width:980px;margin:auto;padding:0 14px 100px}.nav{display:flex;gap:7px;overflow:auto;padding:8px 0 14px;position:sticky;top:0;background:#101815ed;backdrop-filter:blur(14px);z-index:5}.nav button,.seg button{border:1px solid var(--line);background:var(--panel);color:var(--muted);padding:10px 13px;border-radius:13px;white-space:nowrap;font-weight:650}.nav button.active,.seg button.active{background:var(--green2);color:#e9f6ec;border-color:#547e61}.view{display:none}.view.active{display:block}.card{background:linear-gradient(145deg,#1c2821,#17211c);border:1px solid var(--line);border-radius:20px;padding:17px;margin:0 0 13px;box-shadow:0 8px 24px #0002}.card h2{font-size:19px;margin:0 0 5px}.card h3{font-size:15px;margin:0 0 10px}.muted{color:var(--muted);font-size:13px}.date{font-size:12px;color:var(--green);font-weight:700;margin-bottom:8px}.field{margin:12px 0}.field label{display:block;color:var(--muted);font-size:12px;font-weight:700;margin-bottom:6px}input,textarea,select{width:100%;background:#101a15;border:1px solid #3a4c40;color:var(--text);border-radius:11px;padding:11px;outline:none}textarea{min-height:78px;resize:vertical}input[type=file]{padding:8px}input[type=checkbox]{width:18px;height:18px;accent-color:#8acb9c;vertical-align:middle}.btn{border:0;border-radius:12px;padding:11px 14px;background:var(--panel2);color:var(--text);font-weight:700;cursor:pointer}.primary{background:#39664a;color:white}.danger{color:#ffc4bc;background:#492c29}.soft{background:#273b30;color:#c8e9d0}.btn.full{width:100%;margin-top:8px}.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.row>*{flex:1}.seg{display:flex;gap:7px;margin:12px 0}.seg button{flex:1}.entry{border:1px solid var(--line);border-radius:15px;padding:13px;margin:9px 0;background:#17221c}.entrytop{display:flex;justify-content:space-between;gap:10px;align-items:center}.tag{font-size:11px;border-radius:30px;padding:4px 9px;background:#2c4937;color:#c9ecd1}.tag.blue{background:#243f49;color:#c4e6f0}.entry p{white-space:pre-wrap;margin:9px 0}.photos{display:flex;gap:7px;overflow:auto;margin-top:8px}.photos img{width:92px;height:92px;object-fit:cover;border-radius:10px}.empty{padding:22px;text-align:center;border:1px dashed #405247;border-radius:14px;color:var(--muted)}.calendar-head{display:flex;justify-content:space-between;align-items:center;margin:10px 0}.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}.dayname,.day{padding:8px 2px;text-align:center;font-size:12px}.dayname{color:var(--muted)}.day{background:#17231c;border:1px solid transparent;border-radius:10px;min-height:53px;color:var(--text);cursor:pointer}.day.dim{opacity:.35}.day.selected{border-color:var(--green);background:#294333}.dots{display:flex;justify-content:center;gap:3px;margin-top:5px}.dot{width:5px;height:5px;border-radius:50%;background:var(--green)}.dot.blue{background:var(--blue)}.checks{display:grid;grid-template-columns:1fr 1fr;gap:8px}.check{display:flex;gap:8px;align-items:flex-start;background:#202e25;padding:10px;border-radius:11px;font-size:13px}.check input{flex:0 0 18px}.affirm{background:#2b3b2e;color:#cce9d0;border:1px solid #435b47;padding:13px;border-radius:14px;margin:12px 0;font-weight:650}.hidden{display:none!important}.filter{display:flex;gap:7px;flex-wrap:wrap}.filter button{border:1px solid var(--line);border-radius:30px;background:transparent;color:var(--muted);padding:7px 11px}.filter button.active{background:var(--green2);color:white}.task{display:flex;gap:10px;align-items:flex-start;padding:12px;background:#17221c;border:1px solid var(--line);border-radius:13px;margin:8px 0}.task.done .taskname{text-decoration:line-through;color:var(--muted)}.taskbody{flex:1;min-width:0}.taskmeta{font-size:12px;color:var(--muted)}.small{font-size:12px;color:var(--muted)}@media(max-width:560px){header{padding-top:19px}.nav{margin:0 -2px}.checks{grid-template-columns:1fr}.card{padding:15px}.day{min-height:48px;font-size:11px}}
 .image-lightbox{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.94);display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box}.image-lightbox img{max-width:100%;max-height:100%;object-fit:contain}.image-lightbox .lightbox-close{position:absolute;top:12px;right:12px;width:48px;height:48px;border-radius:50%;background:#fff;color:#111;font-size:30px;line-height:1;padding:0;z-index:1}.divider{height:1px;background:var(--line);margin:25px 0}.health-form-card .check{margin:9px 0}.health-form-card .photos img{cursor:zoom-in}.health-datetime-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:end}.health-datetime-row .field{min-width:0;margin:12px 0}.health-datetime-row input{display:block;width:100%;min-width:0;max-width:100%;padding:11px 8px}@media(max-width:380px){.health-datetime-row{gap:7px}.health-datetime-row input{font-size:13px;padding:10px 5px}}
 .garden-add{padding:12px}.garden-input-wrap{display:flex;gap:10px;align-items:center}.garden-input-wrap input{flex:1;min-width:0;margin:0}.garden-plus{width:48px;height:48px;flex:0 0 48px;border:0;border-radius:15px;background:#78bd8d;color:#102017;font-size:30px;font-weight:500;line-height:1}.garden-list-section{margin:22px 0}.garden-list-section h2{font-size:18px;margin:0 0 10px}.garden-list{display:flex;flex-direction:column;gap:8px}.garden-row{display:flex;align-items:center;gap:10px;padding:13px;background:#17221c;border:1px solid var(--line);border-radius:14px}.garden-row input[type=checkbox]{width:20px;height:20px;flex:0 0 20px;accent-color:#8acb9c}.garden-row-title{flex:1;min-width:0;overflow-wrap:anywhere}.garden-action{border:1px solid var(--line);background:#202e25;color:var(--ink);border-radius:9px;padding:7px 9px;font-size:12px}.garden-action.danger{color:#f2a3a3}@media(max-width:430px){.garden-row{gap:7px;padding:10px}.garden-action{padding:7px;font-size:11px}}
+
+/* Warm light-brown journal theme */
+:root{color-scheme:light;--bg:#eee3d4;--panel:#f8f1e7;--panel2:#e9d9c5;--line:#d5c1a8;--text:#46372b;--muted:#897664;--green:#927052;--green2:#d8c1a5;--blue:#8b9e9d;--gold:#b28a4c;--red:#a65e50}
+body{background:radial-gradient(ellipse at top,#f7eee2 0,#e9ddce 65%,#e5d7c6 100%);color:var(--text)}
+.nav{background:#eee3d4ed}
+.nav button,.seg button{background:#f8f1e7;color:#7e6b58;border-color:#d5c1a8}
+.nav button.active,.seg button.active{background:#cbb294;color:#443426;border-color:#b99d7b}
+.card{background:linear-gradient(145deg,#fbf6ee,#f1e6d8);border-color:#d9c6ae;box-shadow:0 8px 24px #765b3b12}
+input,textarea,select{background:#fffaf3;border-color:#d6c2a9;color:#493a2d}
+input::placeholder,textarea::placeholder{color:#a18e7a}
+.field label{color:#806e5b}
+.date,.eyebrow{color:#9a7650}
+.btn{background:#e8d9c6;color:#4c3b2c}
+.primary{background:#9b7956;color:#fffaf4}
+.danger{color:#934d43;background:#f1dcd5}
+.soft{background:#e6d5c0;color:#654c34}
+.entry{background:#f8f0e5;border-color:#ddcbb5}
+.tag{background:#e4d2bc;color:#684d31}
+.tag.blue{background:#dce5e2;color:#4e6965}
+.empty{border-color:#d2bea5;color:#927f6c}
+.day{background:#f6eee3;color:#554433}
+.day.selected{border-color:#9b7956;background:#e4d1b8}
+.dayname{color:#927e69}
+.dot{background:#9b7956}.dot.blue{background:#8b9e9d}
+.check{background:#eee2d2}
+.affirm{background:#e8d9c6;color:#5b4632;border-color:#d1b999}
+.filter button{border-color:#d3bea4;color:#806d59}
+.filter button.active{background:#cbb294;color:#46372b}
+.task,.garden-row{background:#f8f0e5;border-color:#ddcbb5}
+.garden-action{background:#e9d9c5;color:#57432f;border-color:#d5c1a8}
+.garden-action.danger{color:#934d43}
+.health-form-card input,.health-form-card textarea,.health-form-card select{background:#fffaf3}
+.health-main-tabs button.active{background:linear-gradient(135deg,#b99a76,#d4bea0);color:#403020}
+.health-hero-icon{background:linear-gradient(145deg,#e3d1b9,#cbb294)}
+.divider{background:#d9c6ae}
 </style></head><body>
 <header><h1>Naplóm</h1><p>Észrevenni, megélni, megőrizni.</p></header>
 <main class="shell">
-<nav class="nav"><button class="active" data-view="home">Áttekintés</button><button data-view="journal">Életnapló</button><button data-view="health">Egészség</button><button data-view="garden">Ház és kert</button><button data-view="calendar">Naptár</button></nav>
+<nav class="nav"><button class="active" data-view="home">🏡 Áttekintés</button><button data-view="journal">📖 Életnapló</button><button data-view="health">🌿 Egészség</button><button data-view="garden">🪴 Ház és kert</button><button data-view="calendar">🗓️ Naptár</button></nav>
 <section id="home" class="view active">
-<div class="card"><div class="date" id="todayDate"></div><h2>Jó, hogy itt vagy.</h2><p class="muted">Nem kell ma semmit bizonyítanod. Ez a napló azért van, hogy észrevedd, mi történik benned és körülötted.</p><div class="affirm">Az értékem nem attól függ, mennyi mindent végeztem el.</div><div class="row"><button class="btn primary" onclick="go('journal')">Napi visszatekintés</button><button class="btn" onclick="go('health')">Egészség rögzítése</button></div></div>
-<div class="card"><h2>Ma jól csináltam</h2><p class="muted">Az apró dolgok is számítanak.</p><div id="homeGood" class="muted">Még nincs mai visszatekintés.</div></div>
-<div class="card"><h2>Mai egészségem</h2><div id="homeHealth" class="muted">Még nincs mai étkezés vagy mozgás rögzítve.</div></div>
+<div class="card"><div class="date" id="todayDate"></div><h2>☀️ Jó, hogy itt vagy.</h2><p class="muted">Nem kell ma semmit bizonyítanod. Ez a napló azért van, hogy észrevedd, mi történik benned és körülötted.</p><div class="affirm">Az értékem nem attól függ, mennyi mindent végeztem el.</div><div class="row"><button class="btn primary" onclick="go('journal')">Napi visszatekintés</button><button class="btn" onclick="go('health')">Egészség rögzítése</button></div></div>
+<div class="card"><h2>✨ Ma jól csináltam</h2><p class="muted">Az apró dolgok is számítanak.</p><div id="homeGood" class="muted">Még nincs mai visszatekintés.</div></div>
+<div class="card"><h2>🌱 Mai egészségem</h2><div id="homeHealth" class="muted">Még nincs mai étkezés vagy mozgás rögzítve.</div></div>
 </section>
 <section id="journal" class="view">
-<div class="card"><div class="date" id="journalDate"></div><h2>Napi visszatekintés</h2><p class="muted">Nem értékeljük a napot. Csak figyelmesen ránézünk.</p>
+<div class="card"><div class="date" id="journalDate"></div><h2>🪞 Napi visszatekintés</h2><p class="muted">Nem értékeljük a napot. Csak figyelmesen ránézünk.</p>
 <div class="field"><label>Mit csináltam ma jól?</label><div class="checks" id="goodChecks">
 <label class="check"><input type="checkbox" value="Figyeltem magamra.">Figyeltem magamra.</label><label class="check"><input type="checkbox" value="Türelmes voltam.">Türelmes voltam.</label><label class="check"><input type="checkbox" value="Jelen voltam.">Jelen voltam.</label><label class="check"><input type="checkbox" value="Betartottam a saját határaimat.">Betartottam a saját határaimat.</label><label class="check"><input type="checkbox" value="Megengedtem magamnak a pihenést.">Pihentem.</label><label class="check"><input type="checkbox" value="Elengedtem, amit nem tudtam irányítani.">Elengedtem, amit nem irányíthattam.</label><label class="check"><input type="checkbox" value="Nem akartam mindent tökéletesen csinálni.">Elfogadtam, hogy elég jó is lehet.</label><label class="check"><input type="checkbox" value="Kedves voltam valakihez.">Kedves voltam valakihez.</label></div></div>
 <div class="field"><label>Még valami, amit ma jól csináltam</label><textarea id="goodOther" placeholder="Egy apróság is számít..."></textarea></div>
@@ -23,7 +58,7 @@
 <div class="field"><label>Miben fejlődtem, vagy mit tanultam?</label><textarea id="growth"></textarea></div>
 <div class="field"><label>Mi esett ma jól? Miért lehetek hálás?</label><textarea id="gratitude"></textarea></div>
 <div class="field"><label>Mi foglalkoztat most?</label><textarea id="mind"></textarea></div><button class="btn primary full" id="saveDay">Napi bejegyzés mentése</button></div>
-<div class="card"><h2>Korábbi naplóbejegyzések</h2><div id="journalHistory"></div></div>
+<div class="card"><h2>📚 Korábbi naplóbejegyzések</h2><div id="journalHistory"></div></div>
 </section>
 <section id="health" class="view">
 <div class="card"><div class="health-heading"><div><span class="eyebrow">TESTI JÓLLÉT</span><h2>Egészség</h2><p class="muted">Étkezés és mozgás – a saját ritmusodban.</p></div><div class="health-hero-icon">🌿</div></div><div class="seg health-main-tabs"><button class="active" data-healthtab="entry">✚ Új bejegyzés</button><button data-healthtab="records">▦ Naplóbejegyzések</button></div></div><div id="healthRecordsPanel" class="hidden"><div class="card"><div class="seg"><button class="active" data-healthview="month">▦ Havi nézet</button><button data-healthview="list">☷ Lista nézet</button></div>
@@ -48,10 +83,10 @@
 </section>
 <section id="garden" class="view">
 <div class="card garden-add"><div class="garden-input-wrap"><input id="homeTitle" aria-label="Új ház vagy kerti feladat" placeholder="Mit szeretnél felírni?"><button id="addHome" class="garden-plus" type="button" aria-label="Hozzáadás">+</button></div></div>
-<div class="garden-list-section"><h2>Függőben</h2><div id="homePending" class="garden-list"></div></div>
-<div class="garden-list-section"><h2>Kész</h2><div id="homeDone" class="garden-list"></div></div>
+<div class="garden-list-section"><h2>⏳ Függőben</h2><div id="homePending" class="garden-list"></div></div>
+<div class="garden-list-section"><h2>✓ Kész</h2><div id="homeDone" class="garden-list"></div></div>
 </section>
-<section id="calendar" class="view"><div class="card"><h2>Életnaptár</h2><p class="muted">A napjaid bejegyzései egy helyen.</p><div class="calendar-head"><button class="btn" id="prevAll">‹</button><strong id="allMonthLabel"></strong><button class="btn" id="nextAll">›</button></div><div class="calendar" id="allCalendar"></div><div id="allDayDetails"></div></div></section>
+<section id="calendar" class="view"><div class="card"><h2>🗓️ Életnaptár</h2><p class="muted">A napjaid bejegyzései egy helyen.</p><div class="calendar-head"><button class="btn" id="prevAll">‹</button><strong id="allMonthLabel"></strong><button class="btn" id="nextAll">›</button></div><div class="calendar" id="allCalendar"></div><div id="allDayDetails"></div></div></section>
 </main>
 <script>
 const DB='naplom-v1',STORE='items';
