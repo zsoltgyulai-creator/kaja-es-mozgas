@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="hu"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#e8d8c3"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Naplóm"><link rel="manifest" href="/manifest.json"><title>Naplóm</title>
+<html lang="hu"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#211b16"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Naplóm"><link rel="manifest" href="/manifest.json"><title>Naplóm</title>
 <style>
 :root{color-scheme:dark;--bg:#101815;--panel:#19231e;--panel2:#202d26;--line:#304238;--text:#edf4ee;--muted:#9aa99f;--green:#9bd6ad;--green2:#294d38;--blue:#a9d8e8;--gold:#e7d39a;--red:#e59a91}
 .eyebrow{font-size:10px;letter-spacing:2px;font-weight:800;color:var(--green);display:block;margin-bottom:5px}.health-heading{display:flex;align-items:center;justify-content:space-between}.health-heading h2{font-size:24px;margin:0}.health-hero-icon{width:54px;height:54px;border-radius:18px;background:linear-gradient(145deg,#294d38,#1c3428);display:grid;place-items:center;font-size:27px}.health-main-tabs{margin:18px 0 0}.health-main-tabs button{min-height:48px;font-size:13px}.health-form-card{border-radius:24px}.health-form-card h2{font-size:22px;margin-bottom:14px}.health-form-card .seg button{min-height:46px}.health-form-card .field{margin:15px 0}.health-form-card input,.health-form-card textarea,.health-form-card select{border-radius:14px;padding:13px;background:#111d16}.health-form-card .primary{min-height:50px;letter-spacing:.2px}.health-main-tabs button.active{background:linear-gradient(135deg,#315d40,#244532)}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#1c2b23 0,#101815 48%);color:var(--text);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}button,input,textarea,select{font:inherit}header{padding:25px 18px 18px;max-width:980px;margin:auto}header h1{font-size:30px;letter-spacing:-1px;margin:0}header p{color:var(--muted);margin:3px 0 0;font-size:13px}.shell{max-width:980px;margin:auto;padding:0 14px 100px}.nav{display:flex;gap:7px;overflow:auto;padding:8px 0 14px;position:sticky;top:0;background:#101815ed;backdrop-filter:blur(14px);z-index:5}.nav button,.seg button{border:1px solid var(--line);background:var(--panel);color:var(--muted);padding:10px 13px;border-radius:13px;white-space:nowrap;font-weight:650}.nav button.active,.seg button.active{background:var(--green2);color:#e9f6ec;border-color:#547e61}.view{display:none}.view.active{display:block}.card{background:linear-gradient(145deg,#1c2821,#17211c);border:1px solid var(--line);border-radius:20px;padding:17px;margin:0 0 13px;box-shadow:0 8px 24px #0002}.card h2{font-size:19px;margin:0 0 5px}.card h3{font-size:15px;margin:0 0 10px}.muted{color:var(--muted);font-size:13px}.date{font-size:12px;color:var(--green);font-weight:700;margin-bottom:8px}.field{margin:12px 0}.field label{display:block;color:var(--muted);font-size:12px;font-weight:700;margin-bottom:6px}input,textarea,select{width:100%;background:#101a15;border:1px solid #3a4c40;color:var(--text);border-radius:11px;padding:11px;outline:none}textarea{min-height:78px;resize:vertical}input[type=file]{padding:8px}input[type=checkbox]{width:18px;height:18px;accent-color:#8acb9c;vertical-align:middle}.btn{border:0;border-radius:12px;padding:11px 14px;background:var(--panel2);color:var(--text);font-weight:700;cursor:pointer}.primary{background:#39664a;color:white}.danger{color:#ffc4bc;background:#492c29}.soft{background:#273b30;color:#c8e9d0}.btn.full{width:100%;margin-top:8px}.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.row>*{flex:1}.seg{display:flex;gap:7px;margin:12px 0}.seg button{flex:1}.entry{border:1px solid var(--line);border-radius:15px;padding:13px;margin:9px 0;background:#17221c}.entrytop{display:flex;justify-content:space-between;gap:10px;align-items:center}.tag{font-size:11px;border-radius:30px;padding:4px 9px;background:#2c4937;color:#c9ecd1}.tag.blue{background:#243f49;color:#c4e6f0}.entry p{white-space:pre-wrap;margin:9px 0}.photos{display:flex;gap:7px;overflow:auto;margin-top:8px}.photos img{width:92px;height:92px;object-fit:cover;border-radius:10px}.empty{padding:22px;text-align:center;border:1px dashed #405247;border-radius:14px;color:var(--muted)}.calendar-head{display:flex;justify-content:space-between;align-items:center;margin:10px 0}.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}.dayname,.day{padding:8px 2px;text-align:center;font-size:12px}.dayname{color:var(--muted)}.day{background:#17231c;border:1px solid transparent;border-radius:10px;min-height:53px;color:var(--text);cursor:pointer}.day.dim{opacity:.35}.day.selected{border-color:var(--green);background:#294333}.dots{display:flex;justify-content:center;gap:3px;margin-top:5px}.dot{width:5px;height:5px;border-radius:50%;background:var(--green)}.dot.blue{background:var(--blue)}.checks{display:grid;grid-template-columns:1fr 1fr;gap:8px}.check{display:flex;gap:8px;align-items:flex-start;background:#202e25;padding:10px;border-radius:11px;font-size:13px}.check input{flex:0 0 18px}.affirm{background:#2b3b2e;color:#cce9d0;border:1px solid #435b47;padding:13px;border-radius:14px;margin:12px 0;font-weight:650}.hidden{display:none!important}.filter{display:flex;gap:7px;flex-wrap:wrap}.filter button{border:1px solid var(--line);border-radius:30px;background:transparent;color:var(--muted);padding:7px 11px}.filter button.active{background:var(--green2);color:white}.task{display:flex;gap:10px;align-items:flex-start;padding:12px;background:#17221c;border:1px solid var(--line);border-radius:13px;margin:8px 0}.task.done .taskname{text-decoration:line-through;color:var(--muted)}.taskbody{flex:1;min-width:0}.taskmeta{font-size:12px;color:var(--muted)}.small{font-size:12px;color:var(--muted)}@media(max-width:560px){header{padding-top:19px}.nav{margin:0 -2px}.checks{grid-template-columns:1fr}.card{padding:15px}.day{min-height:48px;font-size:11px}}
@@ -39,6 +39,41 @@ input::placeholder,textarea::placeholder{color:#a18e7a}
 .health-main-tabs button.active{background:linear-gradient(135deg,#b99a76,#d4bea0);color:#403020}
 .health-hero-icon{background:linear-gradient(145deg,#e3d1b9,#cbb294)}
 .divider{background:#d9c6ae}
+
+/* Complete dark theme */
+:root{color-scheme:dark;--bg:#171310;--panel:#241e19;--panel2:#30261e;--line:#49392c;--text:#f0e6da;--muted:#b2a18f;--green:#d4a66f;--green2:#57402b;--blue:#91b4b4;--gold:#e2b66f;--red:#e59b8e}
+body{background:radial-gradient(ellipse at top,#30251c 0,#1b1713 55%,#14110f 100%);color:var(--text)}
+.nav{background:#1b1713ed}
+.nav button,.seg button{background:#28211b;color:#c2b19e;border-color:#49392c}
+.nav button.active,.seg button.active{background:#60472f;color:#fff1df;border-color:#98734b}
+.card{background:linear-gradient(145deg,#2b231c,#211b16);border-color:#49392c;box-shadow:0 8px 24px #0005}
+input,textarea,select{background:#191511;border-color:#574432;color:#f0e6da;color-scheme:dark}
+input::placeholder,textarea::placeholder{color:#8e7c69}
+.field label{color:#c0a98f}
+.date,.eyebrow{color:#d4a66f}
+.btn{background:#3b2e23;color:#f0e6da}
+.primary{background:#9a7045;color:#fff8ef}
+.danger{color:#ffc2b6;background:#512d27}
+.soft{background:#3b3025;color:#ead4b9}
+.entry{background:#28211b;border-color:#49392c}
+.tag{background:#51402d;color:#f1d8b3}
+.tag.blue{background:#263b3b;color:#c4e1df}
+.empty{border-color:#5b4937;color:#b2a18f}
+.day{background:#28211b;color:#eee2d4}
+.day.selected{border-color:#d4a66f;background:#57402b}
+.dayname{color:#b2a18f}
+.dot{background:#d4a66f}.dot.blue{background:#91b4b4}
+.check{background:#30271f;color:#f0e6da}
+.affirm{background:#3b2e23;color:#f0dfc9;border-color:#66503a}
+.filter button{border-color:#574432;color:#b2a18f}
+.filter button.active{background:#60472f;color:#fff1df}
+.health-form-card input,.health-form-card textarea,.health-form-card select{background:#191511}
+.health-main-tabs button.active{background:linear-gradient(135deg,#765638,#4f3927);color:#fff1df}
+.health-hero-icon{background:linear-gradient(145deg,#60472f,#30231a)}
+.divider{background:#49392c}
+.image-lightbox{background:rgba(0,0,0,.96)}
+.image-lightbox .lightbox-close{background:#30261e;color:#f0e6da}
+
 </style></head><body>
 <header><h1>Naplóm</h1><p>Észrevenni, megélni, megőrizni.</p></header>
 <main class="shell">
